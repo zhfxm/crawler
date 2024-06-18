@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
+	"strings"
 )
 
 func main()  {
@@ -22,5 +23,6 @@ func main()  {
 		fmt.Printf("read io err:%v", err)
 		return
 	}
-	fmt.Println("body:" + string(body))
+	numLinks := strings.Count(string(body), "<a")
+	fmt.Printf("links count: %d \n", numLinks)
 }
