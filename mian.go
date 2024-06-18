@@ -24,5 +24,5 @@ func main()  {
 		return
 	}
 	numLinks := strings.Count(string(body), "<a")
-	fmt.Printf("links count: %d \n", numLinks)
+	fmt.Printf("has links count: %d \n", numLinks)
 }
