@@ -1,17 +1,28 @@
 package main
 
 import (
+	"context"
 	"fmt"
-
-	"github.com/zhfxm/crawler/collect"
+	"time"
 )
 
 func main()  {
-	url := "https://www.thepaper.cn/"
-	var f = collect.BaseFetch{}
-	b, err := f.Get(url)
-	if err != nil {
-		fmt.Printf("collect get error: %v\n", err)
+	ctx := context.Background()
+	before := time.Now()
+	preCtx, _ := context.WithTimeout(ctx, 500 * time.Millisecond)
+	go func() {
+		childCtx, _ := context.WithTimeout(preCtx, 300 * time.Millisecond)
+		select {
+		case <- childCtx.Done():
+			after := time.Now()
+			fmt.Println("child during:", after.Sub(before).Milliseconds())
+		}
+	}()
+	
+	select {
+	case <- preCtx.Done():
+		after := time.Now()
+		fmt.Println("pre during:", after.Sub(before).Milliseconds())
 	}
-	fmt.Printf("get info: %s \n", string(b))
+	time.Sleep(1 * time.Second)
 }
