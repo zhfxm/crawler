@@ -2,27 +2,16 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
-	"strings"
+
+	"github.com/zhfxm/crawler/collect"
 )
 
 func main()  {
 	url := "https://www.thepaper.cn/"
-	resp, err := http.Get(url)
+	var f = collect.BaseFetch{}
+	b, err := f.Get(url)
 	if err != nil {
-		fmt.Printf("http get err:%v", err)
-		return
+		fmt.Printf("collect get error: %v\n", err)
 	}
-	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("http error code: %v", resp.StatusCode)
-		return
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("read io err:%v", err)
-		return
-	}
-	numLinks := strings.Count(string(body), "<a")
-	fmt.Printf("has links count: %d \n", numLinks)
+	fmt.Printf("get info: %s \n", string(b))
 }
