@@ -1,28 +1,34 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"time"
+	"log"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
 )
 
 func main()  {
-	ctx := context.Background()
-	before := time.Now()
-	preCtx, _ := context.WithTimeout(ctx, 500 * time.Millisecond)
-	go func() {
-		childCtx, _ := context.WithTimeout(preCtx, 300 * time.Millisecond)
-		select {
-		case <- childCtx.Done():
-			after := time.Now()
-			fmt.Println("child during:", after.Sub(before).Milliseconds())
-		}
-	}()
-	
-	select {
-	case <- preCtx.Done():
-		after := time.Now()
-		fmt.Println("pre during:", after.Sub(before).Milliseconds())
+	proxy, err := NewProxy()
+	if err != nil {
+		panic(err)
 	}
-	time.Sleep(1 * time.Second)
+	http.HandleFunc("/", ProxyRequestHandly(proxy))
+	log.Fatal(http.ListenAndServe(":8181", nil))
+}
+
+func NewProxy() (*httputil.ReverseProxy, error) {
+	targetHost := "http://localhost:8080"
+	url, err := url.Parse(targetHost)
+	if err != nil {
+		return nil, err
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(url)
+	return proxy, err
+}
+
+func ProxyRequestHandly(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		proxy.ServeHTTP(w, r)
+	}
 }
