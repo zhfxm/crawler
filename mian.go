@@ -2,33 +2,28 @@ package main
 
 import (
 	"log"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
+type Game struct {}
+
+func (g *Game) Update() error {
+	return nil
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+	ebitenutil.DebugPrint(screen, "Hello World!")
+}
+
+func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+	return 320, 240
+}
+
 func main()  {
-	proxy, err := NewProxy()
-	if err != nil {
-		panic(err)
-	}
-	http.HandleFunc("/", ProxyRequestHandly(proxy))
-	log.Fatal(http.ListenAndServe(":8181", nil))
-}
-
-func NewProxy() (*httputil.ReverseProxy, error) {
-	targetHost := "http://localhost:8080"
-	url, err := url.Parse(targetHost)
-	if err != nil {
-		return nil, err
-	}
-
-	proxy := httputil.NewSingleHostReverseProxy(url)
-	return proxy, err
-}
-
-func ProxyRequestHandly(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		proxy.ServeHTTP(w, r)
+	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowTitle("Hello, World!")
+	if err := ebiten.RunGame(&Game{}); err != nil {
+		log.Fatal(err)
 	}
 }
