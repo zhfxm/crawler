@@ -15,9 +15,7 @@ func NewLogger(plugin zapcore.Core, options ...zap.Option) *zap.Logger {
 }
 
 func NewPlugin(writer zapcore.WriteSyncer, enabler zapcore.LevelEnabler) Plugin {
-	std := zapcore.AddSync(os.Stdout)
-	mw := zapcore.NewMultiWriteSyncer(writer, std)
-	return zapcore.NewCore(DefaultEncode(), mw, enabler)
+	return zapcore.NewCore(DefaultEncode(), writer, enabler)
 }
 
 func NewStdoutPlugin(enabler zapcore.LevelEnabler) Plugin {
@@ -31,5 +29,10 @@ func NewStderrPlugin(enabler zapcore.LevelEnabler) Plugin {
 func NewFilePlugin(filepath string, enabler zapcore.LevelEnabler) (Plugin, io.Closer) {
 	write := DefaultLumberjackLogger()
 	write.Filename = filepath
-	return NewPlugin(zapcore.AddSync(write), enabler), write
+	
+	wf := zapcore.AddSync(write)
+	std := zapcore.AddSync(os.Stdout)
+	mw := zapcore.NewMultiWriteSyncer(wf, std)
+
+	return NewPlugin(mw, enabler), write
 }
