@@ -68,4 +68,5 @@ func main() {
 	defer c.Close()
 	slogger := slog.NewLogger(plugin)
 	slogger.Info("slog info mesg")
+	slogger.Sugar().Error("slog sugar error msg")
 }
