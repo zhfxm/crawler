@@ -2,71 +2,52 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"time"
-
-	slog "github.com/zhfxm/crawler/log"
-
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	url := "www.google.com"
-	fmt.Println("============logger.Info=======================")
-	logger.Info("faild to fetch url",
-		zap.String("url", url),
-		zap.Int("attempt", 3),
-		zap.Duration("backoff", time.Second),
-	)
-	fmt.Println("============sugar.Infow=======================")
-	sugar := logger.Sugar()
-	sugar.Infow("faild to fetch url",
-		"url", url,
-		"attempt", 3,
-		"backoff", time.Second,
-	)
+	demo1()
+	demo2()
+}
 
-	fmt.Println("=============sugar1.Info======================")
-	loggerConfig := zap.NewProductionConfig()
-	loggerConfig.EncoderConfig.TimeKey = "timestamp"
-	loggerConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)
-	logger1, _ := loggerConfig.Build()
-	sugar1 := logger1.Sugar()
-	sugar1.Info("logger config by self")
+func demo1() {
+	var Ball int
+	table := make(chan int)
+	go player(table)
+	go player(table)
+	table <- Ball
+	time.Sleep(1 * time.Second)
+	<-table
+}
 
-	fmt.Println("=============lumberjack======================")
-	w := &lumberjack.Logger{
-		Filename : "/Users/hui.zhang/Desktop/gplog.log",
-		MaxSize: 500, // 日志最大大小，单位 M
-		MaxBackups: 3, // 保留日志文件最大数量
-		MaxAge: 28, // 保留旧日志文件最大天数
-	}
-	log.SetOutput(w)
-	for i := 0; i < 2; i++ {
-		log.Printf("This is log entry %d", i)
-		time.Sleep(time.Second) // 模拟日志写入间隔
-	}
-	core := zapcore.NewCore(
-		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), 
-		zapcore.AddSync(w), 
-		zap.InfoLevel,
-	)
-	logInstance := zap.New(core)
-	zap.ReplaceGlobals(logInstance)
-	for i := 0; i < 2; i++ {
-		zap.L().Info("This is anothr log entry", zap.Int("entryNumber", i))
-		time.Sleep(time.Second)
-	}
-	defer logInstance.Sync()
+func player(table chan int) {
+	ball := <-table
+	fmt.Println(ball)
+	ball++
+	time.Sleep(100 * time.Millisecond)
+	table <- ball
+}
 
-	fmt.Println("=============self log======================")
-	plugin, c := slog.NewFilePlugin("/Users/hui.zhang/Desktop/slog.log", zap.InfoLevel)
-	defer c.Close()
-	slogger := slog.NewLogger(plugin)
-	slogger.Info("slog info mesg")
-	slogger.Sugar().Error("slog sugar error msg")
+func demo2() {
+	ch1 := search("jonson")
+	ch2 := search("alan")
+	select{
+	case msg := <-ch1: 
+	fmt.Println(msg)
+	case msg := <-ch2:
+		fmt.Println(msg)
+	}
+}
+
+func search(msg string) chan string {
+	var ch = make(chan string)
+	go func() {
+		var i int
+	for {
+		ch <- fmt.Sprintf("get %s %d", msg, i)
+		i++
+		time.Sleep(100 * time.Millisecond)
+	}
+	}()
+	return ch
 }
