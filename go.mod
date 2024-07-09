@@ -1,4 +1,4 @@
-module github.com/zhfxm/crawler
+module github.com/zhfxm/simple-crawler
 
 go 1.21
 
