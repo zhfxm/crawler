@@ -30,9 +30,9 @@ func NewFilePlugin(filepath string, enabler zapcore.LevelEnabler) (Plugin, io.Cl
 	write := DefaultLumberjackLogger()
 	write.Filename = filepath
 	
-	wf := zapcore.AddSync(write)
-	std := zapcore.AddSync(os.Stdout)
-	mw := zapcore.NewMultiWriteSyncer(wf, std)
+	// wf := zapcore.AddSync(write)
+	// std := zapcore.AddSync(os.Stdout)
+	// mw := zapcore.NewMultiWriteSyncer(wf, std)
 
-	return NewPlugin(mw, enabler), write
+	return NewPlugin(zapcore.AddSync(write), enabler), write
 }
