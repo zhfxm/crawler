@@ -29,17 +29,17 @@ func main() {
 		})
 	}
 	logger.Sugar().Info("seeds size:", len(seeds))
-	
+
 	var f collect.Fetcher = collect.BrowserFetch{
 		Timeout: 30 * time.Second,
 		Logger:  logger,
 	}
 
-	var engine *engine.ScheduleEngine = &engine.ScheduleEngine{
-		WorkerCount: 1,
-		Logger:      logger,
-		Seeds:       seeds,
-		Fetcher:     f,
-	}
-	engine.Run()
+	e := engine.NewSchedule(
+		engine.WidthSeeds(seeds),
+		engine.WithFetch(f),
+		engine.WithLogger(logger),
+		engine.WithWorkCount(3),
+	)
+	e.Run()
 }

@@ -7,17 +7,24 @@ import (
 	"go.uber.org/zap"
 )
 
-type ScheduleEngine struct {
+type Schedule struct {
 	requestCh   chan *collect.Request
 	workerCh    chan *collect.Request
 	out         chan collect.ParseResult
-	WorkerCount int
-	Logger      *zap.Logger
-	Seeds       []*collect.Request
-	Fetcher     collect.Fetcher
+	options
 }
 
-func (s *ScheduleEngine) Run() {
+func NewSchedule(opts ...Option) *Schedule {
+	options := defaultOption
+	for _, opt := range opts {
+		opt(&options)
+	}
+	s := &Schedule{}
+	s.options = options
+	return s
+}
+
+func (s *Schedule) Run() {
 	requestCh := make(chan *collect.Request)
 	workerCh := make(chan *collect.Request)
 	out := make(chan collect.ParseResult)
@@ -33,7 +40,7 @@ func (s *ScheduleEngine) Run() {
 	s.HandlerResult()
 }
 
-func (s *ScheduleEngine) schedule() {
+func (s *Schedule) schedule() {
 	reqQueue := s.Seeds
 	for {
 		var req *collect.Request
@@ -51,7 +58,7 @@ func (s *ScheduleEngine) schedule() {
 	}
 }
 
-func (s *ScheduleEngine) CreateWorker() {
+func (s *Schedule) CreateWorker() {
 	for {
 		req := <-s.workerCh
 		time.Sleep(1 * time.Second)
@@ -65,7 +72,7 @@ func (s *ScheduleEngine) CreateWorker() {
 	}
 }
 
-func (s *ScheduleEngine) HandlerResult() {
+func (s *Schedule) HandlerResult() {
 	for {
 		select {
 		case result := <-s.out:
