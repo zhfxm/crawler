@@ -18,7 +18,6 @@ func ParseURL(contents []byte, req *collect.Request) collect.ParseResult {
 			&collect.Request{
 				Url: u,
 				Cookie: req.Cookie,
-				Log: req.Log,
 				ParseFunc: func(c []byte, request *collect.Request) collect.ParseResult {
 					return GetContent(c, u)
 				},

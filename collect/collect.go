@@ -20,16 +20,17 @@ type Fetcher interface {
 
 type BrowserFetch struct {
 	Timeout time.Duration
+	Logger  *zap.Logger
 }
 
 func (b BrowserFetch) Get(request *Request) ([]byte, error) {
 	client := &http.Client{
 		Timeout: b.Timeout,
 	}
-	request.Log.Info("request url", zap.String("url", request.Url))
+	b.Logger.Info("request url", zap.String("url", request.Url))
 	req, err := http.NewRequest("GET", request.Url, nil)
 	if err != nil {
-		request.Log.Error("get url failed", zap.Error(err))
+		b.Logger.Error("get url failed", zap.Error(err))
 		return nil, fmt.Errorf("get url faild:%v", err)
 	}
 
@@ -44,7 +45,7 @@ func (b BrowserFetch) Get(request *Request) ([]byte, error) {
 		return nil, err
 	}
 	bodyReader := bufio.NewReader(resp.Body)
-	e := DeterminEncoding(bodyReader, request.Log)
+	e := DeterminEncoding(bodyReader, b.Logger)
 	utf8Reader := transform.NewReader(bodyReader, e.NewDecoder())
 	return io.ReadAll(utf8Reader)
 }
@@ -55,6 +56,6 @@ func DeterminEncoding(r *bufio.Reader, log *zap.Logger) encoding.Encoding {
 		log.Error("fetch error", zap.Error(err))
 		return unicode.UTF8
 	}
-	e ,_ ,_ := charset.DetermineEncoding(b, "")
+	e, _, _ := charset.DetermineEncoding(b, "")
 	return e
 }
