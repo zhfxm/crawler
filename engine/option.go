@@ -12,6 +12,7 @@ type options struct {
 	Logger      *zap.Logger
 	Seeds       []*collect.Request
 	Fetcher     collect.Fetcher
+	scheduler   Scheduler
 }
 
 var defaultOption = options{
@@ -39,5 +40,11 @@ func WithWorkCount(wc int) Option {
 func WidthSeeds(seeds []*collect.Request) Option {
 	return func(opts *options) {
 		opts.Seeds = seeds
+	}
+}
+
+func WidthScheduler(s Scheduler) Option {
+	return func(opts *options) {
+		opts.scheduler = s
 	}
 }

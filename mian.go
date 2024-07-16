@@ -35,11 +35,13 @@ func main() {
 		Logger:  logger,
 	}
 
-	e := engine.NewSchedule(
+	s := engine.NewSchedule(logger)
+	e := engine.NewEngine(
+		engine.WidthScheduler(s),
 		engine.WidthSeeds(seeds),
 		engine.WithFetch(f),
 		engine.WithLogger(logger),
-		engine.WithWorkCount(3),
+		engine.WithWorkCount(10),
 	)
 	e.Run()
 }
