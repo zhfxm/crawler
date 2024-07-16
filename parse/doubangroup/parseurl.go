@@ -26,7 +26,7 @@ func ParseURL(contents []byte, req *collect.Request) collect.ParseResult {
 	return result
 }
 
-const ContentRe = `<div class="topic-content">[\s\S]*?阳台[\s\S]*?<div`
+const ContentRe = `<div class="topic-content">[\s\S]*?阳台[\s\S]*?<div class="aside">`
 
 func GetContent(contents []byte, url string) collect.ParseResult {
 	re := regexp.MustCompile(ContentRe)

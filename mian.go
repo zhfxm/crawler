@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-
+	
 	plugin := log.NewStdoutPlugin(zapcore.InfoLevel)
 	logger := log.NewLogger(plugin)
 	logger.Info("logger init end")
