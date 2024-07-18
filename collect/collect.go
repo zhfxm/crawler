@@ -11,7 +11,7 @@ import (
 	"golang.org/x/net/html/charset"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/unicode"
-	"golang.org/x/text/transform"
+	// "golang.org/x/text/transform"
 )
 
 type Fetcher interface {
@@ -45,9 +45,9 @@ func (b BrowserFetch) Get(request *Request) ([]byte, error) {
 		return nil, err
 	}
 	bodyReader := bufio.NewReader(resp.Body)
-	e := DeterminEncoding(bodyReader, b.Logger)
-	utf8Reader := transform.NewReader(bodyReader, e.NewDecoder())
-	return io.ReadAll(utf8Reader)
+	// e := DeterminEncoding(bodyReader, b.Logger)
+	// utf8Reader := transform.NewReader(bodyReader, e.NewDecoder())
+	return io.ReadAll(bodyReader)
 }
 
 func DeterminEncoding(r *bufio.Reader, log *zap.Logger) encoding.Encoding {

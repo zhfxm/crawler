@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"encoding/json"
 	"sync"
 
 	"github.com/zhfxm/simple-crawler/collect"
@@ -130,7 +131,9 @@ func (e *Crawler) HandlerResult() {
 		select {
 		case result := <-e.out:
 			for _, item := range result.Items {
-				e.Logger.Sugar().Info("request result:", item.(string))
+				// e.Logger.Sugar().Info("request result:", item.(string))
+				i, _ := json.Marshal(item)
+				e.Logger.Sugar().Info("request result:", string(i))
 			}
 		}
 	}

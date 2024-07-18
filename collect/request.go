@@ -3,6 +3,8 @@ package collect
 import (
 	"crypto/md5"
 	"encoding/hex"
+
+	"go.uber.org/zap"
 )
 
 type Request struct {
@@ -10,6 +12,7 @@ type Request struct {
 	Method    string
 	Cookie    string
 	Priority  int
+	Logger    *zap.Logger
 	ParseFunc func([]byte, *Request) ParseResult
 }
 
