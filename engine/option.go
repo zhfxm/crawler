@@ -2,6 +2,7 @@ package engine
 
 import (
 	"github.com/zhfxm/simple-crawler/collect"
+	"github.com/zhfxm/simple-crawler/collector"
 	"go.uber.org/zap"
 )
 
@@ -13,6 +14,7 @@ type options struct {
 	Seeds       []*collect.Request
 	Fetcher     collect.Fetcher
 	scheduler   Scheduler
+	Storage     collector.Storage
 }
 
 var defaultOption = options{
@@ -46,5 +48,11 @@ func WidthSeeds(seeds []*collect.Request) Option {
 func WidthScheduler(s Scheduler) Option {
 	return func(opts *options) {
 		opts.scheduler = s
+	}
+}
+
+func WidthStorage(s collector.Storage) Option {
+	return func(opts *options) {
+		opts.Storage = s
 	}
 }

@@ -1,10 +1,10 @@
 package engine
 
 import (
-	"encoding/json"
 	"sync"
 
 	"github.com/zhfxm/simple-crawler/collect"
+	"github.com/zhfxm/simple-crawler/collector"
 	"go.uber.org/zap"
 )
 
@@ -131,9 +131,12 @@ func (e *Crawler) HandlerResult() {
 		select {
 		case result := <-e.out:
 			for _, item := range result.Items {
-				// e.Logger.Sugar().Info("request result:", item.(string))
-				i, _ := json.Marshal(item)
-				e.Logger.Sugar().Info("request result:", string(i))
+				switch d := item.(type) {
+				case *collector.DataCell:
+					e.Logger.Sugar().Info("handler result data cell")
+					e.Storage.Save(d)
+				}
+			
 			}
 		}
 	}
